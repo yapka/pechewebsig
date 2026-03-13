@@ -1,111 +1,259 @@
-================================================================================
-  WebSIG PÊCHE — README TECHNIQUE
-  Plateforme de gestion des activités de pêche en Côte d'Ivoire
-================================================================================
+# WebSIG Pêche – Côte d’Ivoire
 
-DESCRIPTION
------------
-Application web géospatiale (WebSIG) permettant la gestion, le suivi et la
-cartographie des activités de pêche maritime et continentale en Côte d'Ivoire.
+## Description
+WebSIG Pêche CI est une plateforme de gestion, de suivi et de cartographie des activités de pêche maritime et continentale en Côte d’Ivoire.
 
-Problèmes adressés :
-  - Surexploitation des ressources halieutiques
-  - Pêche illégale dans les zones protégées
-  - Absence de cartographie dynamique des zones de pêche
-  - Manque de données géospatiales pour la prise de décision
+L’objectif de l’application est de centraliser les données halieutiques afin de faciliter la gestion durable des ressources et de lutter contre la surexploitation et la pêche illégale.
 
-INSTALLATION
-------------
-  1. Cloner le dépôt
-     git clone <url-du-depot>
-     cd peche_sig
+L’application repose sur des technologies SIG modernes permettant de collecter, analyser et visualiser les données géographiques liées aux activités de pêche.
 
-  2. Créer l'environnement virtuel
-     python -m venv .venv
-     source .venv/bin/activate          # Linux/Mac
-     .venv\Scripts\activate             # Windows
+Technologies principales utilisées :
 
-  3. Installer les dépendances Python
-  pip install -r requirements.txt
-    Dans le  settings.py, ajouter les chemins vers les bibliothèques GDAL et GEOS :
-     GDAL_LIBRARY_PATH = r'C:/Program Files/QGIS 3.28.0/bin/gdal307.dll'
-     GEOS_LIBRARY_PATH = r'C:/Program Files/QGIS 3.28.0/bin/geos_c.dll'
+- Django / GeoDjango
+- PostgreSQL + PostGIS
+- Leaflet
+- Python
+- JavaScript
 
-  4. Créer la base de données PostgreSQL
-     createdb peche_db
-     psql peche_db -c "CREATE EXTENSION postgis;"
+---
 
-  5. Configurer settings.py
-     Éditer config/settings.py :
-       - DATABASE NAME     : peche_db
-       - DATABASE USER     : <votre_user_postgres>
-       - DATABASE PASSWORD : <votre_mot_de_passe>
-       - DATABASE HOST     : localhost
-       - DATABASE PORT     : 5432
+# Fonctionnalités principales
 
-  6. Appliquer les migrations
-     python manage.py makemigrations
-     python manage.py migrate
+## Suivi des zones de pêche
+Gestion et visualisation des zones de pêche sous forme de polygones stockés dans une base PostGIS.
 
-  7. Créer un superutilisateur
-     python manage.py createsuperuser
+## Déclaration géolocalisée des captures
+Les pêcheurs peuvent enregistrer leurs captures avec leurs coordonnées GPS.
 
-  8. Lancer le serveur
-     python manage.py runserver
+## Suivi des trajets des bateaux
+Les déplacements des embarcations sont enregistrés sous forme de trajectoires (LineString).
 
-  Accès : http://127.0.0.1:8000
-  Admin : http://127.0.0.1:8000/admin/
+## Système d’alertes
+Détection automatique des infractions lorsque des activités sont signalées dans des zones protégées.
 
+## Tableaux de bord statistiques
+Analyse et visualisation des données halieutiques pour le suivi des ressources.
 
+---
 
-MODÈLES DE DONNÉES
-------------------
-  accounts.Utilisateur      Modèle utilisateur personnalisé (rôles)
-  accounts.Pecheur          Profil pêcheur (licence, commune, type)
-  accounts.Bateau           Bateaux enregistrés par pêcheur
+# Architecture du projet
 
-  zones.ZonePeche           Zones géospatiales (PolygonField PostGIS)
+Le système repose sur une architecture WebSIG classique.
 
-  captures.EspecePoisson    Référentiel des espèces marines
-  captures.DeclarationCapture  Captures déclarées (PointField)
+Client Web  
+Interface utilisateur HTML / CSS / JavaScript avec Leaflet
 
-  alertes.Alerte            Signalements géolocalisés (PointField)
+Serveur Web  
+Django / GeoDjango pour le traitement et la gestion des données
 
-  trajets.TrajetPeche       Trajets GPS des bateaux (LineStringField)
+Base de données spatiale  
+PostgreSQL avec extension PostGIS
 
-  Champs spatiaux (PostGIS) :
-    ZonePeche.geom          → PolygonField  (SRID 4326)
-    DeclarationCapture.position_gps → PointField (SRID 4326)
-    Alerte.position         → PointField    (SRID 4326)
-    TrajetPeche.trajet      → LineStringField(SRID 4326)
+---
 
+# Installation du projet
 
-RÔLES UTILISATEURS
-------------------
-  pecheur        Déclarer captures, voir zones, signaler alertes
-  expert_sig     Analyser données, statistiques, gérer zones
-  administrateur Accès complet, valider captures, gérer utilisateurs
+## 1. Cloner le dépôt
 
+```bash
+git clone git@github.com:yapka/pechewebsig.git
+cd peche_sig
+```
 
-URLs PRINCIPALES
-----------------
-  /                         Redirection vers dashboard
-  /accounts/login/          Connexion
-  /accounts/inscription/    Inscription
-  /accounts/profil/         Profil utilisateur
-  /zones/                   Liste des zones
-  /zones/carte/             Carte interactive Leaflet
-  /zones/api/geojson/       API GeoJSON (Leaflet AJAX)
-  /captures/                Liste des captures
-  /captures/declarer/       Formulaire de déclaration
-  /captures/mes-captures/   Captures du pêcheur connecté
-  /captures/valider/        Validation (admin)
-  /captures/statistiques/   Statistiques et graphiques
-  /alertes/                 Liste des alertes
-  /alertes/signaler/        Formulaire de signalement
-  /trajets/                 Liste des trajets
-  /dashboard/               Tableau de bord (redirige selon rôle)
-  /dashboard/pecheur/       Dashboard pêcheur
-  /dashboard/expert/        Dashboard expert SIG
-  /dashboard/admin/         Dashboard administrateur
-  /admin/                   Interface d'administration Django
+## 2. Créer un environnement virtuel
+
+```bash
+python -m venv .venv
+```
+
+### Activation sous Linux / Mac
+
+```bash
+source .venv/bin/activate
+```
+
+### Activation sous Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+---
+
+## 3. Installer les dépendances
+
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+# Configuration SIG (Windows)
+
+Si vous utilisez Windows, il est nécessaire de préciser les chemins des bibliothèques GDAL et GEOS dans le fichier `settings.py`.
+
+Exemple :
+
+```python
+GDAL_LIBRARY_PATH = r'C:/Chemin/Vers/gdal.dll'
+GEOS_LIBRARY_PATH = r'C:/Chemin/Vers/geos_c.dll'
+```
+
+---
+
+# Configuration de la base de données
+
+L'application utilise PostgreSQL avec l’extension PostGIS.
+
+## 1. Créer la base de données
+
+```bash
+createdb peche_db
+```
+
+Activer PostGIS :
+
+```bash
+psql peche_db -c "CREATE EXTENSION postgis;"
+```
+
+---
+
+## 2. Configuration Django
+
+Modifier les paramètres dans :
+
+```
+config/settings.py
+```
+
+Exemple de configuration :
+
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'peche_db',
+        'USER': 'postgres',
+        'PASSWORD': 'password',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+```
+
+---
+
+## 3. Initialisation du projet
+
+Créer les migrations :
+
+```bash
+python manage.py makemigrations
+```
+
+Appliquer les migrations :
+
+```bash
+python manage.py migrate
+```
+
+Créer un compte administrateur :
+
+```bash
+python manage.py createsuperuser
+```
+
+---
+
+# Lancer le serveur
+
+```bash
+python manage.py runserver
+```
+
+Accéder ensuite à l'application via :
+
+```
+http://127.0.0.1:8000
+```
+
+Interface d'administration :
+
+```
+http://127.0.0.1:8000/admin
+```
+
+---
+
+# Modèles de données géospatiaux
+
+| Modèle | Type géométrique | Description |
+|------|------|------|
+| ZonePeche | PolygonField (SRID 4326) | Délimitation des zones de pêche |
+| DeclarationCapture | PointField (SRID 4326) | Localisation des captures |
+| Alerte | PointField (SRID 4326) | Signalement d’incidents |
+| TrajetPeche | LineStringField (SRID 4326) | Trajectoires GPS des bateaux |
+
+---
+
+# Rôles utilisateurs
+
+PECHEUR  
+Saisie des captures et consultation des zones autorisées.
+
+EXPERT SIG  
+Analyse spatiale, production cartographique et exploitation des données.
+
+ADMINISTRATEUR  
+Gestion des utilisateurs, validation des données et maintenance du système.
+
+---
+
+# Structure des URLs
+
+| URL | Description |
+|-----|-------------|
+| /zones/carte/ | Visualisation cartographique des zones |
+| /captures/declarer/ | Interface de déclaration des captures |
+| /captures/statistiques/ | Analyse statistique |
+| /admin/ | Interface d'administration Django |
+
+---
+
+# Structure simplifiée du projet
+
+```
+peche_sig/
+│
+├── config/
+│   └── settings.py
+│
+├── zones/
+│   └── models.py
+│
+├── captures/
+│   └── models.py
+│
+├── trajets/
+│   └── models.py
+│
+├── templates/
+│
+├── static/
+│
+├── manage.py
+│
+└── requirements.txt
+```
+
+---
+
+# Perspectives d'amélioration
+
+- Intégration d'un système de suivi GPS en temps réel des bateaux
+- Ajout d'analyses spatiales avancées
+- Développement d'une application mobile pour les pêcheurs
+- Intégration d'images satellitaires pour la surveillance maritime
+- Automatisation de la détection de pêche illégale
+q

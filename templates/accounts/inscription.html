@@ -1,0 +1,131 @@
+<!-- templates/accounts/inscription.html -->
+{% extends 'base.html' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-ocean-900 via-ocean-700 to-slate-800 flex items-center justify-center px-4 py-12">
+
+    <div class="relative w-full max-w-lg">
+
+        <!-- En-tête -->
+        <div class="text-center mb-8 animate-in">
+            <div class="text-5xl mb-3">🎣</div>
+            <h1 class="font-display text-3xl font-bold text-white">Créer un compte</h1>
+            <p class="text-ocean-200 mt-2 text-sm">Rejoignez la plateforme WebSIG Pêche</p>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-8 shadow-2xl animate-in delay-1">
+
+            <form method="POST" novalidate>
+                {% csrf_token %}
+
+                <div class="grid grid-cols-2 gap-4">
+
+                    <!-- Prénom -->
+                    <div>
+                        <label class="block text-ocean-100 text-sm font-medium mb-2">
+                            {{ form.first_name.label }}
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                        <p class="text-red-300 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Nom -->
+                    <div>
+                        <label class="block text-ocean-100 text-sm font-medium mb-2">
+                            {{ form.last_name.label }}
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                        <p class="text-red-300 text-xs mt-1">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Nom d'utilisateur -->
+                <div class="mt-4">
+                    <label class="block text-ocean-100 text-sm font-medium mb-2">
+                        {{ form.username.label }}
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <p class="text-red-300 text-xs mt-1">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div class="mt-4">
+                    <label class="block text-ocean-100 text-sm font-medium mb-2">
+                        {{ form.email.label }}
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <p class="text-red-300 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Téléphone -->
+                <div class="mt-4">
+                    <label class="block text-ocean-100 text-sm font-medium mb-2">
+                        {{ form.telephone.label }}
+                    </label>
+                    {{ form.telephone }}
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <!-- Mot de passe -->
+                    <div>
+                        <label class="block text-ocean-100 text-sm font-medium mb-2">
+                            {{ form.password1.label }}
+                        </label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                        <p class="text-red-300 text-xs mt-1">{{ form.password1.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Confirmer -->
+                    <div>
+                        <label class="block text-ocean-100 text-sm font-medium mb-2">
+                            {{ form.password2.label }}
+                        </label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                        <p class="text-red-300 text-xs mt-1">{{ form.password2.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Info rôle -->
+                <div class="mt-5 bg-ocean-800/40 rounded-xl px-4 py-3 border border-ocean-600/30">
+                    <p class="text-ocean-200 text-xs">
+                        ℹ️ L'inscription crée un compte <strong class="text-white">Pêcheur</strong>.
+                        Les comptes Expert SIG et Administrateur sont créés par l'administration.
+                    </p>
+                </div>
+
+                <!-- Bouton -->
+                <button type="submit"
+                        class="w-full mt-6 bg-ocean-500 hover:bg-ocean-400 text-white font-display font-bold
+                               py-3 rounded-xl transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
+                    Créer mon compte →
+                </button>
+            </form>
+
+            <div class="mt-5 text-center border-t border-white/10 pt-5">
+                <p class="text-ocean-200 text-sm">
+                    Déjà un compte ?
+                    <a href="{% url 'accounts:login' %}"
+                       class="text-ocean-400 hover:text-white font-semibold transition">
+                        Se connecter
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

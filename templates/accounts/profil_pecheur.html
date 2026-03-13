@@ -1,0 +1,108 @@
+<!-- templates/accounts/profil_pecheur.html -->
+{% extends 'base.html' %}
+{% block title %}Mon profil pêcheur{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto animate-in">
+
+    <!-- En-tête -->
+    <div class="mb-6">
+        <a href="{% url 'accounts:profil' %}"
+           class="text-slate-400 hover:text-slate-600 text-sm">← Retour au profil</a>
+        <h1 class="font-display text-2xl font-bold text-slate-800 mt-2">
+            🎣 Mon profil pêcheur
+        </h1>
+        <p class="text-slate-500 text-sm mt-1">
+            Complétez vos informations pour pouvoir déclarer des captures
+        </p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+
+        <form method="POST" novalidate class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Numéro de licence -->
+            <div>
+                <label class="block text-slate-700 font-semibold text-sm mb-2">
+                    📋 Numéro de licence *
+                </label>
+                {{ form.numero_licence }}
+                {% if form.numero_licence.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.numero_licence.errors.0 }}</p>
+                {% endif %}
+                <p class="text-slate-400 text-xs mt-1">
+                    Votre numéro de licence de pêche officiel
+                </p>
+            </div>
+
+            <!-- Date de naissance + Commune -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-slate-700 font-semibold text-sm mb-2">
+                        🎂 Date de naissance
+                    </label>
+                    {{ form.date_naissance }}
+                    {% if form.date_naissance.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.date_naissance.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-semibold text-sm mb-2">
+                        📍 Commune
+                    </label>
+                    {{ form.commune }}
+                    {% if form.commune.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.commune.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Type de pêche + Expérience -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-slate-700 font-semibold text-sm mb-2">
+                        🐟 Type de pêche *
+                    </label>
+                    {{ form.type_peche }}
+                    {% if form.type_peche.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.type_peche.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-semibold text-sm mb-2">
+                        📅 Années d'expérience
+                    </label>
+                    {{ form.experience_annee }}
+                    {% if form.experience_annee.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.experience_annee.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Info -->
+            <div class="bg-ocean-50 rounded-xl px-4 py-3 border border-ocean-100">
+                <p class="text-ocean-700 text-xs">
+                    ℹ️ Ces informations sont nécessaires pour déclarer vos captures
+                    et consulter les zones de pêche.
+                </p>
+            </div>
+
+            <!-- Boutons -->
+            <div class="flex gap-3 pt-2">
+                <button type="submit"
+                        class="flex-1 bg-ocean-600 hover:bg-ocean-500 text-white
+                               font-display font-bold py-3 rounded-xl transition
+                               hover:-translate-y-0.5 hover:shadow-md">
+                    💾 Enregistrer mon profil
+                </button>
+                <a href="{% url 'accounts:profil' %}"
+                   class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600
+                          font-semibold rounded-xl transition text-center">
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

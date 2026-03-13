@@ -1,0 +1,113 @@
+<!-- templates/captures/declarer.html -->
+{% extends 'base.html' %}
+{% block title %}Déclarer une capture{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto animate-in">
+
+    <!-- En-tête -->
+    <div class="mb-6">
+        <a href="{% url 'dashboard:pecheur' %}"
+           class="text-slate-400 hover:text-slate-600 text-sm">← Retour</a>
+        <h1 class="font-display text-2xl font-bold text-slate-800 mt-2">
+            🐠 Déclarer une capture
+        </h1>
+        <p class="text-slate-500 text-sm mt-1">Enregistrez votre pêche du jour</p>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+        <form method="POST" novalidate class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Espèce -->
+            <div>
+                <label class="block text-slate-700 font-semibold text-sm mb-2">
+                    🐟 Espèce pêchée *
+                </label>
+                {{ form.espece }}
+                {% if form.espece.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.espece.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Zone + Quantité côte à côte -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-slate-700 font-semibold text-sm mb-2">
+                        🗺️ Zone de pêche
+                    </label>
+                    {{ form.zone }}
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-semibold text-sm mb-2">
+                        ⚖️ Quantité (kg) *
+                    </label>
+                    {{ form.quantite_kg }}
+                    {% if form.quantite_kg.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.quantite_kg.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Bateau + Engin -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-slate-700 font-semibold text-sm mb-2">
+                        🚢 Bateau utilisé
+                    </label>
+                    {{ form.bateau }}
+                </div>
+                <div>
+                    <label class="block text-slate-700 font-semibold text-sm mb-2">
+                        🎣 Engin de pêche
+                    </label>
+                    {{ form.engin_peche }}
+                </div>
+            </div>
+
+            <!-- Date de capture -->
+            <div>
+                <label class="block text-slate-700 font-semibold text-sm mb-2">
+                    📅 Date et heure de capture *
+                </label>
+                {{ form.date_capture }}
+                {% if form.date_capture.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.date_capture.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Observations -->
+            <div>
+                <label class="block text-slate-700 font-semibold text-sm mb-2">
+                    Observations (facultatif)
+                </label>
+                {{ form.observations }}
+            </div>
+
+            <!-- Info -->
+            <div class="bg-ocean-50 rounded-xl px-4 py-3 border border-ocean-100">
+                <p class="text-ocean-700 text-xs">
+                     Votre déclaration sera soumise à validation par l'administration.
+                    Vous recevrez une notification une fois traitée.
+                </p>
+            </div>
+
+            <!-- Boutons -->
+            <div class="flex gap-3 pt-2">
+                <button type="submit"
+                        class="flex-1 bg-ocean-600 hover:bg-ocean-500 text-white font-display
+                               font-bold py-3 rounded-xl transition hover:-translate-y-0.5 hover:shadow-md">
+                    📤 Soumettre la déclaration
+                </button>
+                <a href="{% url 'dashboard:pecheur' %}"
+                   class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600
+                          font-semibold rounded-xl transition text-center">
+                    Annuler
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+

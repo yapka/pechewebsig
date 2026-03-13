@@ -1,0 +1,247 @@
+<!-- templates/zones/carte.html -->
+{% extends 'base.html' %}
+
+{% block title %}Carte des zones{% endblock %}
+
+{% block extra_css %}
+<style>
+    #map { height: calc(100vh - 220px); min-height: 500px; border-radius: 1rem; }
+    .leaflet-popup-content-wrapper { border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
+    .zone-autorisee  { fill: #22c55e; stroke: #16a34a; }
+    .zone-interdite  { fill: #ef4444; stroke: #dc2626; }
+    .zone-protegee   { fill: #f59e0b; stroke: #d97706; }
+    .zone-surveillance { fill: #3b82f6; stroke: #2563eb; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- En-tête -->
+<div class="animate-in flex items-center justify-between mb-6">
+    <div>
+        <h1 class="font-display text-2xl font-bold text-slate-800">🗺️ Carte des zones de pêche</h1>
+        <p class="text-slate-500 text-sm mt-1">Côte d'Ivoire — Vue interactive</p>
+    </div>
+    {% if user.est_admin or user.est_expert %}
+    <a href="{% url 'zones:creer' %}"
+       class="bg-ocean-600 hover:bg-ocean-500 text-white font-semibold px-5 py-2.5
+              rounded-xl transition hover:-translate-y-0.5 hover:shadow-md text-sm">
+        + Nouvelle zone
+    </a>
+    {% endif %}
+</div>
+
+<!-- Statistiques rapides -->
+<div class="animate-in delay-1 grid grid-cols-3 gap-4 mb-5">
+    <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex items-center gap-3">
+        <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-lg">✅</div>
+        <div>
+            <p class="text-slate-400 text-xs">Zones actives</p>
+            <p class="font-display font-bold text-xl text-slate-800">{{ total_zones }}</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex items-center gap-3">
+        <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center text-lg">🚫</div>
+        <div>
+            <p class="text-slate-400 text-xs">Zones interdites</p>
+            <p class="font-display font-bold text-xl text-slate-800">{{ zones_interdites }}</p>
+        </div>
+    </div>
+    <div class="bg-white rounded-xl p-4 border border-slate-100 shadow-sm flex items-center gap-3">
+        <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-lg">🛡️</div>
+        <div>
+            <p class="text-slate-400 text-xs">Aires protégées</p>
+            <p class="font-display font-bold text-xl text-slate-800">{{ zones_protegees }}</p>
+        </div>
+    </div>
+</div>
+
+<div class="animate-in delay-2 grid grid-cols-1 lg:grid-cols-4 gap-5">
+
+    <!-- Carte principale -->
+    <div class="lg:col-span-3">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+
+            <!-- Filtres sur la carte -->
+            <div class="flex gap-2 p-3 border-b border-slate-100 flex-wrap">
+                <button onclick="filtrerZones('')"
+                        class="filtre-btn active px-3 py-1.5 rounded-lg text-xs font-semibold
+                               bg-ocean-600 text-white transition" data-type="">
+                    Toutes
+                </button>
+                <button onclick="filtrerZones('autorisee')"
+                        class="filtre-btn px-3 py-1.5 rounded-lg text-xs font-semibold
+                               bg-emerald-100 text-emerald-700 hover:bg-emerald-200 transition"
+                        data-type="autorisee">
+                    ✅ Autorisées
+                </button>
+                <button onclick="filtrerZones('interdite')"
+                        class="filtre-btn px-3 py-1.5 rounded-lg text-xs font-semibold
+                               bg-red-100 text-red-700 hover:bg-red-200 transition"
+                        data-type="interdite">
+                    🚫 Interdites
+                </button>
+                <button onclick="filtrerZones('protegee')"
+                        class="filtre-btn px-3 py-1.5 rounded-lg text-xs font-semibold
+                               bg-amber-100 text-amber-700 hover:bg-amber-200 transition"
+                        data-type="protegee">
+                    🛡️ Protégées
+                </button>
+                <button onclick="filtrerZones('surveillance')"
+                        class="filtre-btn px-3 py-1.5 rounded-lg text-xs font-semibold
+                               bg-blue-100 text-blue-700 hover:bg-blue-200 transition"
+                        data-type="surveillance">
+                    👁️ Surveillance
+                </button>
+            </div>
+
+            <!-- Carte Leaflet -->
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Panneau latéral : légende + liste zones -->
+    <div class="space-y-4">
+
+        <!-- Légende -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+            <h3 class="font-display font-bold text-slate-700 text-sm mb-3">Légende</h3>
+            <div class="space-y-2">
+                {% for type, label, color in légende %}
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                    <span class="w-4 h-4 rounded {{ color }} inline-block"></span>
+                    {{ label }}
+                </div>
+                {% endfor %}
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                    <span class="w-4 h-4 rounded bg-emerald-200 border-2 border-emerald-500 inline-block"></span>
+                    Zone autorisée
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                    <span class="w-4 h-4 rounded bg-red-200 border-2 border-red-500 inline-block"></span>
+                    Zone interdite
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                    <span class="w-4 h-4 rounded bg-amber-200 border-2 border-amber-500 inline-block"></span>
+                    Aire protégée
+                </div>
+                <div class="flex items-center gap-2 text-sm text-slate-600">
+                    <span class="w-4 h-4 rounded bg-blue-200 border-2 border-blue-500 inline-block"></span>
+                    Surveillance
+                </div>
+            </div>
+        </div>
+
+        <!-- Accès rapide -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+            <h3 class="font-display font-bold text-slate-700 text-sm mb-3">Accès rapide</h3>
+            <div class="space-y-2">
+                <a href="{% url 'zones:liste' %}"
+                   class="flex items-center gap-2 text-sm text-ocean-600 hover:text-ocean-800 font-medium transition">
+                    📋 Liste complète des zones
+                </a>
+                {% if user.est_admin or user.est_expert %}
+                <a href="{% url 'zones:creer' %}"
+                   class="flex items-center gap-2 text-sm text-ocean-600 hover:text-ocean-800 font-medium transition">
+                    ➕ Créer une zone
+                </a>
+                {% endif %}
+                <a href="{% url 'captures:declarer' %}"
+                   class="flex items-center gap-2 text-sm text-ocean-600 hover:text-ocean-800 font-medium transition">
+                    🐠 Déclarer une capture
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ─── Données GeoJSON injectées depuis Django ───────────────────────────────
+const zonesData = {{ zones_geojson|safe }};
+
+// ─── Initialisation de la carte Leaflet ───────────────────────────────────
+const map = L.map('map', {
+    center: [5.3599517, -4.0082563],  // Abidjan, Côte d'Ivoire
+    zoom: 7,
+    zoomControl: true,
+});
+
+// Fond de carte OpenStreetMap
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18,
+}).addTo(map);
+
+// ─── Couleurs selon le type de zone ───────────────────────────────────────
+function getStyle(feature) {
+    const couleurs = {
+        'autorisee':   { color: '#16a34a', fillColor: '#22c55e' },
+        'interdite':   { color: '#dc2626', fillColor: '#ef4444' },
+        'protegee':    { color: '#d97706', fillColor: '#f59e0b' },
+        'surveillance':{ color: '#2563eb', fillColor: '#3b82f6' },
+    };
+    const type = feature.properties.type_zone;
+    const style = couleurs[type] || { color: '#6b7280', fillColor: '#9ca3af' };
+    return {
+        color: style.color,
+        fillColor: style.fillColor,
+        fillOpacity: 0.35,
+        weight: 2,
+        dashArray: type === 'interdite' ? '6,4' : null,
+    };
+}
+
+// ─── Popup au clic sur une zone ───────────────────────────────────────────
+function onEachFeature(feature, layer) {
+    const p = feature.properties;
+    const icones = {
+        'autorisee': '✅', 'interdite': '🚫',
+        'protegee': '🛡️', 'surveillance': '👁️'
+    };
+    layer.bindPopup(`
+        <div style="min-width:180px">
+            <p style="font-weight:700;font-size:14px;margin-bottom:6px">
+                ${icones[p.type_zone] || '📍'} ${p.nom}
+            </p>
+            <p style="color:#64748b;font-size:12px">${p.description || 'Aucune description'}</p>
+            <hr style="margin:8px 0;border-color:#e2e8f0">
+            <a href="/zones/${feature.id}/"
+               style="color:#0284c7;font-size:12px;font-weight:600">
+                Voir le détail →
+            </a>
+        </div>
+    `);
+    layer.on('mouseover', () => layer.setStyle({ fillOpacity: 0.6 }));
+    layer.on('mouseout',  () => geoLayer.resetStyle(layer));
+}
+
+// ─── Ajout du GeoJSON sur la carte ────────────────────────────────────────
+let geoLayer = L.geoJSON(zonesData, {
+    style: getStyle,
+    onEachFeature: onEachFeature,
+}).addTo(map);
+
+// Zoom sur les zones si elles existent
+if (zonesData.features && zonesData.features.length > 0) {
+    map.fitBounds(geoLayer.getBounds(), { padding: [30, 30] });
+}
+
+// ─── Filtrage par type ────────────────────────────────────────────────────
+function filtrerZones(type) {
+    geoLayer.remove();
+    const filtered = {
+        type: 'FeatureCollection',
+        features: type
+            ? zonesData.features.filter(f => f.properties.type_zone === type)
+            : zonesData.features
+    };
+    geoLayer = L.geoJSON(filtered, {
+        style: getStyle,
+        onEachFeature: onEachFeature,
+    }).addTo(map);
+}
+</script>
+{% endblock %}

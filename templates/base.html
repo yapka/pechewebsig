@@ -1,0 +1,187 @@
+<!-- templates/base.html -->
+<!-- Template de base — hérité par TOUTES les pages du projet -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}WebSIG Pêche{% endblock %} — CURAT</title>
+
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts : Syne (titres) + DM Sans (texte) -->
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- Leaflet CSS (pour les cartes) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <script>
+        // Configuration Tailwind personnalisée
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'display': ['Syne', 'sans-serif'],
+                        'body':    ['DM Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        ocean: {
+                            50:  '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'DM Sans', sans-serif; }
+        h1, h2, h3, .font-display { font-family: 'Syne', sans-serif; }
+
+        /* Animation d'entrée */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in { animation: fadeInUp 0.4s ease forwards; }
+        .delay-1 { animation-delay: 0.1s; opacity: 0; }
+        .delay-2 { animation-delay: 0.2s; opacity: 0; }
+        .delay-3 { animation-delay: 0.3s; opacity: 0; }
+
+        /* Scrollbar custom */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 3px; }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="bg-slate-50 text-slate-800 min-h-screen font-body">
+
+    {% if user.is_authenticated %}
+    <!-- ===================== NAVBAR ===================== -->
+    <nav class="bg-ocean-900 text-white shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+
+            <!-- Logo -->
+            <a href="{% url 'dashboard:accueil' %}"
+               class="flex items-center gap-3 font-display font-bold text-lg tracking-tight">
+                <span class="text-2xl">🐟</span>
+                <span>WebSIG <span class="text-ocean-400">Pêche</span></span>
+            </a>
+
+            <!-- Navigation selon le rôle -->
+            <div class="hidden md:flex items-center gap-1">
+
+                {% if user.est_pecheur %}
+                <a href="{% url 'zones:carte' %}"
+                   class="px-3 py-2 rounded-lg hover:bg-ocean-700 transition text-sm font-medium">
+                    🗺️ Carte
+                </a>
+                <a href="{% url 'captures:declarer' %}"
+                   class="px-3 py-2 rounded-lg hover:bg-ocean-700 transition text-sm font-medium">
+                    🐠 Déclarer
+                </a>
+                <a href="{% url 'alertes:liste' %}"
+                   class="px-3 py-2 rounded-lg hover:bg-ocean-700 transition text-sm font-medium">
+                    🚨 Alertes
+                </a>
+                {% endif %}
+
+                {% if user.est_expert %}
+                <a href="{% url 'zones:carte' %}"
+                   class="px-3 py-2 rounded-lg hover:bg-ocean-700 transition text-sm font-medium">
+                    🗺️ Carte
+                </a>
+                <a href="{% url 'captures:liste' %}"
+                   class="px-3 py-2 rounded-lg hover:bg-ocean-700 transition text-sm font-medium">
+                    📊 Captures
+                </a>
+                <a href="{% url 'captures:statistiques' %}"
+                   class="px-3 py-2 rounded-lg hover:bg-ocean-700 transition text-sm font-medium">
+                    📈 Statistiques
+                </a>
+                {% endif %}
+
+                {% if user.est_admin %}
+                <a href="{% url 'zones:liste' %}"
+                   class="px-3 py-2 rounded-lg hover:bg-ocean-700 transition text-sm font-medium">
+                    🗺️ Zones
+                </a>
+                <a href="{% url 'accounts:liste_utilisateurs' %}"
+                   class="px-3 py-2 rounded-lg hover:bg-ocean-700 transition text-sm font-medium">
+                    👥 Utilisateurs
+                </a>
+                <a href="{% url 'captures:valider' %}"
+                   class="px-3 py-2 rounded-lg hover:bg-ocean-700 transition text-sm font-medium">
+                    ✅ Validation
+                </a>
+                {% endif %}
+            </div>
+
+            <!-- Profil utilisateur -->
+            <div class="flex items-center gap-3">
+                <a href="{% url 'accounts:profil' %}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-ocean-700 transition text-sm">
+                    <div class="w-8 h-8 rounded-full bg-ocean-500 flex items-center justify-center font-bold text-xs">
+                        {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                    </div>
+                    <span class="hidden md:block">{{ user.get_full_name }}</span>
+                </a>
+                <a href="{% url 'accounts:logout' %}"
+                   class="px-3 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition text-sm font-medium">
+                    Déconnexion
+                </a>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- ===================== MESSAGES FLASH ===================== -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 mt-4 space-y-2">
+        {% for message in messages %}
+        <div class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium animate-in
+            {% if message.tags == 'success' %}bg-emerald-100 text-emerald-800 border border-emerald-200
+            {% elif message.tags == 'error' %}bg-red-100 text-red-800 border border-red-200
+            {% elif message.tags == 'warning' %}bg-amber-100 text-amber-800 border border-amber-200
+            {% else %}bg-sky-100 text-sky-800 border border-sky-200{% endif %}">
+            <span>
+                {% if message.tags == 'success' %}✅
+                {% elif message.tags == 'error' %}❌
+                {% elif message.tags == 'warning' %}⚠️
+                {% else %}ℹ️{% endif %}
+            </span>
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ===================== CONTENU PRINCIPAL ===================== -->
+    <main class="{% if user.is_authenticated %}max-w-7xl mx-auto px-4 py-8{% endif %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ===================== FOOTER ===================== -->
+    {% if user.is_authenticated %}
+    <footer class="mt-16 bg-ocean-900 text-ocean-200 text-center py-6 text-sm">
+        <p class="font-display font-semibold text-white">WebSIG Pêche — CURAT</p>
+        <p class="mt-1">Université Félix Houphouët-Boigny · Abidjan, Côte d'Ivoire</p>
+    </footer>
+    {% endif %}
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

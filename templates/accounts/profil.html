@@ -1,0 +1,175 @@
+<!-- templates/accounts/profil.html -->
+{% extends 'base.html' %}
+
+{% block title %}Mon Profil{% endblock %}
+
+{% block content %}
+
+<!-- En-tête profil -->
+<div class="animate-in mb-8">
+    <div class="bg-gradient-to-r from-ocean-900 to-ocean-700 rounded-2xl p-8 text-white flex items-center gap-6 shadow-xl">
+
+        <!-- Avatar -->
+        <div class="w-20 h-20 rounded-2xl bg-ocean-500 flex items-center justify-center font-display font-bold text-3xl shadow-lg flex-shrink-0">
+            {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+        </div>
+
+        <!-- Infos -->
+        <div>
+            <h1 class="font-display text-2xl font-bold">
+                {{ user.get_full_name }}
+            </h1>
+            <div class="flex items-center gap-3 mt-2">
+                <span class="px-3 py-1 rounded-full text-xs font-semibold
+                    {% if user.est_admin %}bg-purple-500
+                    {% elif user.est_expert %}bg-emerald-500
+                    {% else %}bg-ocean-500{% endif %}">
+                    {% if user.est_admin %}👑 Administrateur
+                    {% elif user.est_expert %}🔬 Expert SIG
+                    {% else %}🎣 Pêcheur{% endif %}
+                </span>
+                <span class="text-ocean-200 text-sm">{{ user.email }}</span>
+            </div>
+            <p class="text-ocean-300 text-xs mt-1">
+                Membre depuis le {{ user.date_joined|date:"d F Y" }}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Colonne gauche : Modifier le profil -->
+    <div class="lg:col-span-2 animate-in delay-1">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h2 class="font-display text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+                ✏️ Modifier mes informations
+            </h2>
+
+            <form method="POST" enctype="multipart/form-data" novalidate class="space-y-4">
+                {% csrf_token %}
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-600 text-sm font-medium mb-1">Prénom</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div>
+                        <label class="block text-slate-600 text-sm font-medium mb-1">Nom</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-600 text-sm font-medium mb-1">Email</label>
+                    {{ form.email }}
+                </div>
+
+                <div>
+                    <label class="block text-slate-600 text-sm font-medium mb-1">Téléphone</label>
+                    {{ form.telephone }}
+                </div>
+
+                <button type="submit"
+                        class="bg-ocean-600 hover:bg-ocean-500 text-white font-semibold px-6 py-2.5
+                               rounded-xl transition-all hover:-translate-y-0.5 hover:shadow-md">
+                    💾 Enregistrer les modifications
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Colonne droite : Infos complémentaires -->
+    <div class="space-y-5 animate-in delay-2">
+
+        <!-- Profil pêcheur (si applicable) -->
+        {% if user.est_pecheur %}
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h2 class="font-display text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
+                🎣 Mon profil pêcheur
+            </h2>
+
+            {% if profil_pecheur %}
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Licence :</span>
+                    <span class="font-semibold text-slate-700">{{ profil_pecheur.numero_licence }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Commune :</span>
+                    <span class="font-semibold text-slate-700">{{ profil_pecheur.commune }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Type :</span>
+                    <span class="font-semibold text-slate-700">{{ profil_pecheur.get_type_peche_display }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Expérience :</span>
+                    <span class="font-semibold text-slate-700">{{ profil_pecheur.experience_annee }} ans</span>
+                </div>
+            </div>
+            <a href="{% url 'accounts:profil_pecheur' %}"
+               class="mt-4 block text-center text-ocean-600 hover:text-ocean-800 text-xs font-semibold">
+                Modifier →
+            </a>
+            {% else %}
+            <p class="text-slate-400 text-sm mb-3">Profil non complété</p>
+            <a href="{% url 'accounts:profil_pecheur' %}"
+               class="block w-full text-center bg-ocean-50 hover:bg-ocean-100 text-ocean-700
+                      font-semibold py-2 rounded-xl text-sm transition">
+                + Compléter mon profil
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Mes bateaux -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="font-display text-base font-bold text-slate-800 flex items-center gap-2">
+                    🚢 Mes bateaux
+                </h2>
+                <a href="{% url 'accounts:ajouter_bateau' %}"
+                   class="text-ocean-600 hover:text-ocean-800 text-xs font-semibold">
+                    + Ajouter
+                </a>
+            </div>
+
+            {% if bateaux %}
+            <div class="space-y-3">
+                {% for bateau in bateaux %}
+                <div class="bg-slate-50 rounded-xl px-4 py-3 border border-slate-100">
+                    <p class="font-semibold text-slate-700 text-sm">{{ bateau.nom }}</p>
+                    <p class="text-slate-400 text-xs mt-0.5">
+                        {{ bateau.immatriculation }} · {{ bateau.get_type_bateau_display }}
+                    </p>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-slate-400 text-sm text-center py-4">Aucun bateau enregistré</p>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Infos compte -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h2 class="font-display text-base font-bold text-slate-800 mb-4">
+                🔐 Mon compte
+            </h2>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Identifiant :</span>
+                    <span class="font-semibold text-slate-700">{{ user.username }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500">Statut :</span>
+                    <span class="{% if user.is_active %}text-emerald-600{% else %}text-red-500{% endif %} font-semibold">
+                        {% if user.is_active %}✅ Actif{% else %}❌ Inactif{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+<!-- templates/alertes/liste.html -->
+{% extends 'base.html' %}
+{% block title %}Alertes{% endblock %}
+
+{% block content %}
+
+<div class="animate-in flex items-center justify-between mb-6">
+    <div>
+        <h1 class="font-display text-2xl font-bold text-slate-800">Alertes</h1>
+        <p class="text-slate-500 text-sm mt-1">
+            {{ total_ouvertes }} alerte{{ total_ouvertes|pluralize }} ouverte{{ total_ouvertes|pluralize }}
+        </p>
+    </div>
+    {% if user.est_pecheur %}
+    <a href="{% url 'alertes:signaler' %}"
+       class="bg-red-600 hover:bg-red-500 text-white font-semibold px-5 py-2.5
+              rounded-xl transition hover:-translate-y-0.5 text-sm">
+        🚨 Signaler
+    </a>
+    {% endif %}
+</div>
+
+<!-- Filtres (Admin/Expert) -->
+{% if not user.est_pecheur %}
+<div class="flex gap-2 mb-5 animate-in delay-1">
+    {% for val, label in statut_choices %}
+    <a href="?statut={{ val }}"
+       class="px-4 py-2 rounded-xl text-xs font-semibold transition bg-white border border-slate-200
+              hover:bg-slate-50 text-slate-600">
+        {{ label }}
+    </a>
+    {% endfor %}
+    <a href="{% url 'alertes:liste' %}"
+       class="px-4 py-2 rounded-xl text-xs font-semibold bg-ocean-600 text-white">
+        Toutes
+    </a>
+</div>
+{% endif %}
+
+<!-- Liste des alertes -->
+<div class="space-y-3 animate-in delay-2">
+    {% for alerte in alertes %}
+    <div class="bg-white rounded-2xl border shadow-sm overflow-hidden
+        {% if alerte.niveau == 'danger' %}border-red-200
+        {% elif alerte.niveau == 'warning' %}border-amber-200
+        {% else %}border-slate-100{% endif %}">
+
+        <div class="flex items-start gap-4 p-5">
+
+            <!-- Icône niveau -->
+            <div class="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0
+                {% if alerte.niveau == 'danger' %}bg-red-100
+                {% elif alerte.niveau == 'warning' %}bg-amber-100
+                {% else %}bg-blue-100{% endif %}">
+                {% if alerte.niveau == 'danger' %}🔴
+                {% elif alerte.niveau == 'warning' %}🟡
+                {% else %}🔵{% endif %}
+            </div>
+
+            <!-- Contenu -->
+            <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="font-display font-bold text-slate-800">{{ alerte.titre }}</p>
+                        <p class="text-slate-500 text-sm mt-0.5">{{ alerte.description|truncatechars:100 }}</p>
+                    </div>
+                    <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold
+                            {% if alerte.statut == 'ouverte' %}bg-red-100 text-red-700
+                            {% elif alerte.statut == 'en_traitement' %}bg-amber-100 text-amber-700
+                            {% else %}bg-emerald-100 text-emerald-700{% endif %}">
+                            {{ alerte.get_statut_display }}
+                        </span>
+                        <span class="text-slate-400 text-xs">
+                            {{ alerte.date_creation|date:"d/m H:i" }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4 mt-3">
+                    <span class="text-xs text-slate-400">
+                        {{ alerte.get_type_alerte_display }}
+                    </span>
+                    {% if alerte.signale_par %}
+                    <span class="text-xs text-slate-400">
+                        Signalé par {{ alerte.signale_par.get_full_name }}
+                    </span>
+                    {% endif %}
+                    <a href="{% url 'alertes:detail' alerte.pk %}"
+                       class="text-ocean-600 text-xs font-semibold hover:text-ocean-800 ml-auto">
+                        Détails →
+                    </a>
+                    {% if user.est_admin or user.est_expert %}
+                    {% if alerte.statut != 'resolue' %}
+                    <a href="{% url 'alertes:traiter' alerte.pk %}"
+                       class="text-emerald-600 text-xs font-semibold hover:text-emerald-800">
+                        Traiter
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-16 bg-white rounded-2xl border border-slate-100">
+        <p class="text-4xl mb-3">✅</p>
+        <p class="text-slate-500 font-semibold">Aucune alerte pour le moment</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     templates/alertes/signaler.html
+═══════════════════════════════════════════════════════════════════ -->

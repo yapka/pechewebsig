@@ -1,0 +1,136 @@
+<!-- templates/dashboard/admin.html -->
+{% extends 'base.html' %}
+{% block title %}Tableau de bord Admin{% endblock %}
+
+{% block content %}
+
+<div class="animate-in mb-8">
+    <h1 class="font-display text-2xl font-bold text-slate-800">
+        👑 Tableau de bord — Administrateur
+    </h1>
+    <p class="text-slate-500 mt-1">Vue globale de la plateforme WebSIG Pêche</p>
+</div>
+
+<!-- Métriques principales -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 animate-in delay-1">
+
+    <div class="bg-gradient-to-br from-ocean-600 to-ocean-800 rounded-2xl p-5 text-white shadow-lg">
+        <p class="text-ocean-200 text-xs font-medium">Utilisateurs actifs</p>
+        <p class="font-display text-3xl font-bold mt-1">{{ metriques.nb_utilisateurs }}</p>
+        <p class="text-ocean-300 text-xs mt-2">🎣 {{ metriques.nb_pecheurs }} pêcheurs</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl p-5 text-white shadow-lg">
+        <p class="text-emerald-100 text-xs font-medium">Zones actives</p>
+        <p class="font-display text-3xl font-bold mt-1">{{ metriques.nb_zones }}</p>
+        <p class="text-emerald-200 text-xs mt-2">📍 sur la carte</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-amber-500 to-amber-700 rounded-2xl p-5 text-white shadow-lg">
+        <p class="text-amber-100 text-xs font-medium">Captures à valider</p>
+        <p class="font-display text-3xl font-bold mt-1">{{ metriques.captures_en_attente }}</p>
+        <p class="text-amber-200 text-xs mt-2">⏳ en attente</p>
+    </div>
+
+    <div class="bg-gradient-to-br from-red-500 to-red-700 rounded-2xl p-5 text-white shadow-lg">
+        <p class="text-red-100 text-xs font-medium">Alertes ouvertes</p>
+        <p class="font-display text-3xl font-bold mt-1">{{ metriques.alertes_ouvertes }}</p>
+        <p class="text-red-200 text-xs mt-2">🚨 non résolues</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in delay-2">
+
+    <!-- Captures à valider -->
+    <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+        <div class="flex items-center justify-between mb-5">
+            <h2 class="font-display font-bold text-slate-800">⏳ Captures en attente</h2>
+            <a href="{% url 'captures:valider' %}"
+               class="text-ocean-600 text-sm font-semibold hover:text-ocean-800">
+                Voir tout →
+            </a>
+        </div>
+        <div class="space-y-3">
+            {% for capture in captures_urgentes %}
+            <div class="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center text-sm">🐠</div>
+                    <div>
+                        <p class="font-semibold text-slate-700 text-sm">
+                            {{ capture.pecheur.utilisateur.get_full_name }}
+                        </p>
+                        <p class="text-slate-400 text-xs">
+                            {{ capture.espece }} · {{ capture.quantite_kg }} kg
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-slate-400 text-xs">{{ capture.date_soumission|date:"d/m" }}</span>
+                    <a href="{% url 'captures:valider_detail' capture.pk %}"
+                       class="px-3 py-1 bg-ocean-50 hover:bg-ocean-100 text-ocean-700
+                              rounded-lg text-xs font-semibold transition">
+                        Traiter
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-center text-slate-400 py-6">✅ Aucune capture en attente</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Colonne droite -->
+    <div class="space-y-5">
+
+        <!-- Stats rapides -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h2 class="font-display font-bold text-slate-800 mb-4">📊 En un coup d'œil</h2>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500 text-sm">Total captures</span>
+                    <span class="font-bold text-slate-700">{{ metriques.nb_captures }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500 text-sm">Volume total (kg)</span>
+                    <span class="font-bold text-slate-700">{{ metriques.total_kg|floatformat:0 }}</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500 text-sm">Trajets suspects</span>
+                    <span class="font-bold text-red-600">{{ metriques.trajets_suspects }}</span>
+                </div>
+            </div>
+
+            <div class="mt-4 pt-4 border-t border-slate-100 space-y-2">
+                <a href="{% url 'zones:carte' %}"
+                   class="flex items-center gap-2 text-sm text-ocean-600 hover:text-ocean-800 font-medium">
+                    🗺️ Voir la carte
+                </a>
+                <a href="{% url 'accounts:liste_utilisateurs' %}"
+                   class="flex items-center gap-2 text-sm text-ocean-600 hover:text-ocean-800 font-medium">
+                    👥 Gérer les utilisateurs
+                </a>
+                <a href="{% url 'alertes:liste' %}"
+                   class="flex items-center gap-2 text-sm text-ocean-600 hover:text-ocean-800 font-medium">
+                    🚨 Voir les alertes
+                </a>
+            </div>
+        </div>
+
+        <!-- Alertes danger -->
+        {% if alertes_urgentes %}
+        <div class="bg-red-50 rounded-2xl border border-red-100 p-5">
+            <h2 class="font-display font-bold text-red-800 mb-3 text-sm">🔴 Alertes danger</h2>
+            <div class="space-y-2">
+                {% for alerte in alertes_urgentes %}
+                <a href="{% url 'alertes:detail' alerte.pk %}"
+                   class="block bg-white rounded-xl px-3 py-2 border border-red-100 hover:border-red-300 transition">
+                    <p class="font-semibold text-red-700 text-xs">{{ alerte.titre }}</p>
+                    <p class="text-red-400 text-xs mt-0.5">{{ alerte.date_creation|date:"d/m H:i" }}</p>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

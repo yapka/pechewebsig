@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Liste des trajets{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+    <h4>🗺️ Liste des trajets</h4>
+    <a href="{% url 'trajet-create' %}" class="btn btn-primary">
+        + Ajouter un trajet
+    </a>
+</div>
+
+{% if trajets %}
+<table class="table table-striped table-hover">
+    <thead class="table-dark">
+        <tr>
+            <th>Départ</th>
+            <th>Arrivée</th>
+            <th>Date</th>
+            <th>Bateau</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for trajet in trajets %}
+        <tr>
+            <td>{{ trajet.depart }}</td>
+            <td>{{ trajet.arrivee }}</td>
+            <td>{{ trajet.date }}</td>
+            <td>{{ trajet.bateau }}</td>
+            <td>
+                <a href="{% url 'trajet-update' trajet.pk %}"
+                   class="btn btn-sm btn-warning">✏️ Modifier</a>
+                <a href="{% url 'trajet-delete' trajet.pk %}"
+                   class="btn btn-sm btn-danger">🗑️ Supprimer</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <div class="alert alert-info">Aucun trajet enregistré.</div>
+{% endif %}
+{% endblock %}

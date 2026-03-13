@@ -1,0 +1,101 @@
+<!-- templates/accounts/login.html -->
+{% extends 'base.html' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<!-- Page de connexion — plein écran sans navbar -->
+<div class="min-h-screen bg-gradient-to-br from-ocean-900 via-ocean-700 to-slate-800 flex items-center justify-center px-4">
+
+    <!-- Fond décoratif : vagues animées -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -bottom-10 left-0 right-0 opacity-10">
+            <svg viewBox="0 0 1440 200" fill="white">
+                <path d="M0,100 C360,200 1080,0 1440,100 L1440,200 L0,200 Z"/>
+            </svg>
+        </div>
+        <div class="absolute top-20 left-20 w-64 h-64 bg-ocean-400 rounded-full opacity-5 blur-3xl"></div>
+        <div class="absolute bottom-20 right-20 w-96 h-96 bg-cyan-300 rounded-full opacity-5 blur-3xl"></div>
+    </div>
+
+    <!-- Carte de connexion -->
+    <div class="relative w-full max-w-md">
+
+        <!-- En-tête -->
+        <div class="text-center mb-8 animate-in">
+            <div class="text-6xl mb-4">🐟</div>
+            <h1 class="font-display text-3xl font-bold text-white tracking-tight">
+                WebSIG Pêche
+            </h1>
+            <p class="text-ocean-200 mt-2 text-sm">
+                Gestion des activités halieutiques · Côte d'Ivoire
+            </p>
+        </div>
+
+        <!-- Formulaire -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-8 shadow-2xl animate-in delay-1">
+
+            <h2 class="font-display text-xl font-bold text-white mb-6">
+                Connexion à votre compte
+            </h2>
+
+            <form method="POST" novalidate class="space-y-5">
+                {% csrf_token %}
+
+                <!-- Champ username -->
+                <div>
+                    <label class="block text-ocean-100 text-sm font-medium mb-2">
+                        {{ form.username.label }}
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <p class="text-red-300 text-xs mt-1">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Champ password -->
+                <div>
+                    <label class="block text-ocean-100 text-sm font-medium mb-2">
+                        {{ form.password.label }}
+                    </label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                    <p class="text-red-300 text-xs mt-1">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Erreur globale -->
+                {% if form.non_field_errors %}
+                <div class="bg-red-500/20 border border-red-400/30 rounded-xl px-4 py-3 text-red-200 text-sm">
+                    ❌ {{ form.non_field_errors.0 }}
+                </div>
+                {% endif %}
+
+                <!-- Bouton connexion -->
+                <button type="submit"
+                        class="w-full bg-ocean-500 hover:bg-ocean-400 text-white font-display font-bold
+                               py-3 rounded-xl transition-all duration-200 hover:shadow-lg
+                               hover:shadow-ocean-500/30 hover:-translate-y-0.5 active:translate-y-0">
+                    Se connecter →
+                </button>
+            </form>
+
+            <!-- Lien inscription -->
+            <div class="mt-6 text-center border-t border-white/10 pt-6">
+                <p class="text-ocean-200 text-sm">
+                    Pas encore de compte ?
+                    <a href="{% url 'accounts:inscription' %}"
+                       class="text-ocean-400 hover:text-white font-semibold transition">
+                        S'inscrire
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-center text-ocean-300 text-xs mt-6 animate-in delay-2">
+            CURAT · Université Félix Houphouët-Boigny
+        </p>
+    </div>
+</div>
+{% endblock %}

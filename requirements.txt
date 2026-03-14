@@ -1,11 +1,11 @@
 asgiref==3.11.1
-Django==4.2
+Django==4
 django-filter==25.2
 django-leaflet==0.33.0
 djangorestframework==3.16.1
 djangorestframework-gis==1.2.0
 djangorestframework_simplejwt==5.5.1
-<!-- GDAL==3.8.0 -->
+GDAL==3.8.0
 pillow==12.1.1
 psycopg2-binary==2.9.11
 PyJWT==2.11.0

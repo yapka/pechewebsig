@@ -1,5 +1,5 @@
 asgiref==3.11.1
-Django==6.0
+Django==4.2
 django-filter==25.2
 django-leaflet==0.33.0
 djangorestframework==3.16.1
